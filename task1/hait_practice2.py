@@ -28,37 +28,37 @@ index_corr = Series(corr.values.reshape(-1))
 #82     0.758921
 #83     0.700568
 
-# print(index_corr[index_corr<-0.6])
+from sklearn.linear_model import LinearRegression
+lr = LinearRegression()
+lr.fit(X_train, y_train)
+coef = lr.coef_.reshape(-1)
+index_coef = Series(coef)
+# print(index_coef[index_coef>100000000000])
+#155    1.152026e+11
+#161    1.799721e+11
+#165    1.302850e+11
+#243    1.405243e+11
+#247    1.263925e+11
 
-data = data.iloc[:, [6, 11, 26, 33, 39, 40, 53, 67, 73, 81, 82, 83]]
-data = pd.concat([data, y], axis=1)
-# sns.pairplot(data, size=2.0)
+#print(index_coef[index_coef<-100000000000])
+#114   -1.130689e+11
+#118   -1.320249e+11
+#181   -1.811188e+11
+#185   -1.184221e+11
+#200   -1.150144e+11
+
+data1 = data.iloc[:, [6, 26, 82, 83]]
+data2 = data.iloc[:, [11, 33, 39, 40, 53, 67, 73, 81, 155, 161, 165, 243, 247, 114, 118, 181, 185, 200]]
+# data1 = pd.concat([data1, y], axis=1)
+# data2 = pd.concat([data2, y], axis=1)
+# sns.pairplot(data1, size=2.0)
 # plt.show()
-
-overallqual = data.loc[:, ['OverallQual']].values
-exterqual = data.loc[:, ['ExterQual']].values
-grlivarea = data.loc[:, ['GrLivArea']].values
-kitchenqual = data.loc[:, ['KitchenQual']].values
-garagecars = data.loc[:, ['GarageCars']].values
-garagearea = data.loc[:, ['GarageArea']].values
-simploverallqual = data.loc[:, ['SimplOverallQual']].values
-simplexterqual = data.loc[:, ['SimplExterQual']].values
-garagescore = data.loc[:, ['GarageScore']].values
-totalbath = data.loc[:, ['TotalBath']].values
-allse = data.loc[:, ['AllSF']].values
-allflrssf = data.loc[:, ['AllFlrsSF']].values
 
 from sklearn.preprocessing import PolynomialFeatures
 quad = PolynomialFeatures(degree=2)    # 2次の多項式基底を生成
-overallqual_quad = quad.fit_transform(overallqual) # 生成した基底関数で変数変換を実行
+data1_quad = quad.fit_transform(data1) # 生成した基底関数で変数変換を実行
 
-grlivarea_quad = quad.fit_transform(grlivarea) # 生成した基底関数で変数変換を実行
-
-allse_quad = quad.fit_transform(allse) # 生成した基底関数で変数変換を実行
-
-allflrssf_quad = quad.fit_transform(allflrssf) # 生成した基底関数で変数変換を実行
-
-data_quad = np.hstack((overallqual_quad, exterqual, grlivarea_quad, kitchenqual, garagecars, simploverallqual, simplexterqual, allse_quad, allflrssf_quad, garagearea, garagescore, totalbath))
+data_quad = np.hstack((data1_quad, data2))
 
 from sklearn.preprocessing import StandardScaler
 ss = StandardScaler()
@@ -79,26 +79,26 @@ def adjusted(score, n_sample, n_features):
 
 # 2次関数
 print('model_quad')
-print('train: %.3f' % adjusted(model_quad.score(data_quad_train, y_train), len(y_train), 16))
-#train: 0.837
-print('test : %.3f' % adjusted(model_quad.score(data_quad_test, y_test), len(y_test), 16))
-#test : 0.745
+print('train: %.3f' % adjusted(model_quad.score(data_quad_train, y_train), len(y_train), 21))
+#train: 0.857
+print('test : %.3f' % adjusted(model_quad.score(data_quad_test, y_test), len(y_test), 21))
+#test : 0.744
 print('')
 
 from sklearn.linear_model import Ridge
 model_ridge = Ridge(alpha=10)
 model_ridge.fit(data_quad_train, y_train)
 print(model_ridge.score(data_quad_test, y_test))
-#0.767152166514
+#0.762914503976
 
 from sklearn.linear_model import Lasso
 model_lasso = Lasso(alpha=0)
 model_lasso.fit(data_quad_train, y_train)
 print(model_lasso.score(data_quad_test, y_test))
-#0.757796747608
+#0.76959557802
 
 from sklearn.linear_model import ElasticNet
 model_en= ElasticNet(alpha=0.1, l1_ratio=0.9)
 model_en.fit(data_quad_train, y_train)
 print(model_en.score(data_quad_test, y_test))
-#0.754870188119
+#0.755300539527
