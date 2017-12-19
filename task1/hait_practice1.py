@@ -18,6 +18,9 @@ indices = tuple(range(dimension))
 
 from sklearn.metrics import accuracy_score
 from itertools import combinations
+from sklearn.linear_model import LinearRegression
+
+lr = LinearRegression()
 
 lr.fit(X_train2, y_train2)
 
